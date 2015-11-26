@@ -16,6 +16,7 @@
  */
 package securesocial.core
 
+import play.api.Logger
 import play.api.mvc._
 import play.api.i18n.Messages
 import play.api.libs.json.Json
@@ -50,11 +51,15 @@ trait SecureSocial[U] extends Controller {
   protected def notAuthenticatedResult[A](implicit request: Request[A]): Future[SimpleResult] = {
     Future.successful {
       render  {
-        case Accepts.Json() => notAuthenticatedJson
+        case Accepts.Json() =>
+          Logger.debug(s"Credentials required, json render: $render")
+          notAuthenticatedJson
         case Accepts.Html() => Redirect(env.routes.loginPageUrl).
           flashing("error" -> Messages("securesocial.loginRequired"))
           .withSession(request.session + (SecureSocial.OriginalUrlKey -> request.uri))
-        case _ => Unauthorized("Credentials required")
+        case _ =>
+          Logger.debug(s"Credentials required, render: $render")
+          Unauthorized("Credentials required")
       }
     }
   }

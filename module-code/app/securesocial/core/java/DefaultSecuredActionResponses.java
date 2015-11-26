@@ -17,6 +17,8 @@
 package securesocial.core.java;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
+import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -46,8 +48,10 @@ public class DefaultSecuredActionResponses extends Controller implements Secured
         } else if ( req.accepts("application/json")) {
             ObjectNode node = Json.newObject();
             node.put("error", "Credentials required");
+            Logger.debug("Credentials required for json");
             result = unauthorized(node);
         } else {
+            Logger.debug("Credentials required! acceptedTypes:" + req.acceptedTypes() + "; " + ((req.acceptedTypes() != null && req.acceptedTypes().size() > 0)? StringUtils.join(req.acceptedTypes()): ""));
             result = unauthorized("Credentials required");
         }
         return F.Promise.pure(result);
